@@ -18,12 +18,12 @@ export default {
       isLadoAtual: Function,
       adicionaPeca: Function,
       adicionaQuadrado: Function,
-      mostraOpcoesPeao: Function,
       removePecaAtual: Function,
       capturaPeca: Function,
       isPecaSelecionada: Function,
       mudarLado: Function,
       movimentos: Array,
+      movimentacaoDePecas: Object,
       movimentarPecas: Function,
       pecaSelecionada: Object
   },
@@ -40,12 +40,26 @@ export default {
           return classe
       },
       mostraOpcoes: function (tipo) {
-        this.movimentarPecas(this.pecaQuadrado, this.linha, this.coluna)
-          // switch(tipo) {
-          //     case 'Peao':
-          //         this.movimentarPecas(this.pecaQuadrado, this.linha, this.coluna)
-          //         break;
-          // }
+          switch(tipo) {
+              case 'Peao':
+                  this.movimentacaoDePecas.mostraOpcoesPeao(this.pecaQuadrado, this.linha, this.coluna)
+                  break;
+              case 'Cavalo':
+                  this.movimentacaoDePecas.mostraOpcoesCavalo(this.pecaQuadrado, this.linha, this.coluna)
+                  break;
+              case 'Rei':
+                  this.movimentacaoDePecas.mostraOpcoesRei(this.pecaQuadrado, this.linha, this.coluna)
+                  break;
+              case 'Dama':
+                  this.movimentacaoDePecas.mostraOpcoesDama(this.pecaQuadrado, this.linha, this.coluna)
+                  break;
+              case 'Bispo':
+                  this.movimentacaoDePecas.mostraOpcoesBispo(this.pecaQuadrado, this.linha, this.coluna)
+                  break;
+              case 'Torre':
+              this.movimentacaoDePecas.mostraOpcoesTorre(this.pecaQuadrado, this.linha, this.coluna)
+              break;
+          }
       },
       moverPeca(){
           if(Object.entries(this.pecaSelecionada).length === 0 && this.pecaSelecionada.constructor === Object) return

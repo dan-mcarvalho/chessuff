@@ -13,7 +13,7 @@ const pecas = [{tipo: 'Peao', lado: 'Branco', linha:7,coluna: 1},
               {tipo: 'Bispo', lado: 'Branco', linha: 8,coluna: 3},
               {tipo: 'Bispo', lado: 'Branco', linha: 8,coluna: 6},
               {tipo: 'Rei', lado: 'Branco', linha: 8,coluna: 5},
-              {tipo: 'Rainha', lado: 'Branco', linha: 8,coluna: 4},
+              {tipo: 'Dama', lado: 'Branco', linha: 8,coluna: 4},
               {tipo: 'Peao', lado: 'Preto', linha: 2,coluna: 1},
               {tipo: 'Peao', lado: 'Preto', linha: 2,coluna: 2},
               {tipo: 'Peao', lado: 'Preto', linha: 2,coluna: 3},
@@ -29,6 +29,6 @@ const pecas = [{tipo: 'Peao', lado: 'Branco', linha:7,coluna: 1},
               {tipo: 'Bispo', lado: 'Preto', linha: 1,coluna: 3},
               {tipo: 'Bispo', lado: 'Preto', linha: 1,coluna: 6},
               {tipo: 'Rei', lado: 'Preto', linha: 1,coluna: 5},
-              {tipo: 'Rainha', lado: 'Preto', linha: 1,coluna: 4}]
+              {tipo: 'Dama', lado: 'Preto', linha: 1,coluna: 4}]
 
 export default pecas

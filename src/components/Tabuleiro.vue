@@ -8,8 +8,8 @@
           <div class="tabuleiro" v-click-outside="limparQuadrados" v-on:click="limparQuadrados" >
               <div v-for="linha in linhas" v-bind:key="linha" class="linha">
                   <Quadrado 
+                      :movimentacaoDePecas ="movimentacaoDePecas"
                       :movimentos="movimentos" 
-                      :mostraOpcoesPeao="mostraOpcoesPeao" 
                       :adicionaPeca="adicionaPeca" 
                       :adicionaQuadrado="adicionaQuadrado"
                       :removePecaAtual="removePecaAtual"
@@ -52,7 +52,8 @@ export default {
           linhaModal: '',
           colunaModal: '',
           ladoModal: '',
-          pecasMortasPretas: new Array()
+          pecasMortasPretas: new Array(),
+          movimentacaoDePecas: null,
       };
   },
   computed: {
@@ -60,6 +61,18 @@ export default {
        return require(`../assets/UFF_brasão.png`)
     },
   },
+  mounted(){
+    this.movimentacaoDePecas = {
+      mostraOpcoesPeao: this.mostraOpcoesPeao,
+      mostraOpcoesCavalo:this.mostraOpcoesCavalo,
+      mostraOpcoesRei:this.mostraOpcoesRei,
+      mostraOpcoesDama: this.mostraOpcoesDama,     
+      mostraOpcoesTorre: this.mostraOpcoesTorre,
+      mostraOpcoesBispo: this.mostraOpcoesBispo,
+    }
+    console.log("funcoes", this.movimentacaoDePecas)
+
+  },  
   methods: {
       getQuadrado(coluna, linha){
           coluna = String(coluna)
@@ -84,22 +97,6 @@ export default {
                     movimentos.push({id:''+j+i})
                 }
               }
-
-              // for (let index = 1; index <= qntMovimentos; index++) {
-              //     var mov = index*aux
-              //     movimentos.push({id: ''+coluna+(linha-mov)})
-              //     movimentos.push({id: String(coluna+(index*aux))+String(linha-(index*aux))})
-              //     movimentos.push({id: String(coluna-(index*aux))+String(linha-(index*aux))}) 
-              //     movimentos.push({id: ''+(coluna - mov)+linha}) 
-              //     movimentos.push({id: ''+(coluna + mov)+linha}) 
-              //     console.log('movi', movimentos)
-              // }
-
-              // for (let index = 1; index <= qntMovimentos; index++) {
-              //     var mov = index*aux
-              //     movimentos.push({id: ''+coluna+(linha-mov)})  
-              // }
-
               this.mostrarQuadradosDisponiveis(movimentos)
               this.pecaSelecionada = peca
           }, 1)
@@ -125,9 +122,159 @@ export default {
               console.log('movimento', this.movimentos)
 
               this.mostrarQuadradosDisponiveis(movimentos)
-              this.pecaSelecionada = peca
+              this.pecaSelecionada = peca 
           }, 1)
       },
+      isValido(coluna, linha, lado){
+            if(this.getQuadrado(coluna, linha) && this.getQuadrado(coluna, linha).quadrado.__vue__.pecaQuadrado.lado != lado)
+                return true
+        },
+      getQuadrados(movimentos) {
+          this.movimentos = []
+          movimentos.forEach(movimento => {
+              this.movimentos.push(String(movimento.id))
+          })
+      },
+      mostraOpcoesCavalo(peca, linha, coluna){
+            setTimeout(() => {
+                var movimentos = []
+
+                if(this.isValido(coluna+1, linha-2, peca.lado))
+                    movimentos.push({id: String(coluna+1)+String(linha-2)})
+                
+                if(this.isValido(coluna-1, linha-2, peca.lado))
+                    movimentos.push({id: String(coluna-1)+String(linha-2)})
+
+                if(this.isValido(coluna+1, linha+2, peca.lado))
+                    movimentos.push({id: String(coluna+1)+String(linha+2)})
+
+                if(this.isValido(coluna-1, linha+2, peca.lado))    
+                    movimentos.push({id: String(coluna-1)+String(linha+2)})
+                
+                if(this.isValido(coluna-2, linha+1, peca.lado))    
+                    movimentos.push({id: String(coluna-2)+String(linha+1)})
+
+                if(this.isValido(coluna-2, linha-1, peca.lado))    
+                    movimentos.push({id: String(coluna-2)+String(linha-1)})
+
+                if(this.isValido(coluna+2, linha+1, peca.lado))    
+                    movimentos.push({id: String(coluna+2)+String(linha+1)})
+
+                if(this.isValido(coluna+2, linha-1, peca.lado))    
+                    movimentos.push({id: String(coluna+2)+String(linha-1)})
+
+                this.getQuadrados(movimentos)
+                this.pecaSelecionada = peca
+            }, 1)
+        },
+        mostraOpcoesBispo(peca, linha, coluna) {
+            setTimeout(() => {
+                var movimentos = []
+
+                movimentos = this.percorreDiagonal('+', '-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('+', '+', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('-', '-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('-', '+', movimentos, coluna, linha, peca.lado)
+
+                this.getQuadrados(movimentos)
+                this.pecaSelecionada = peca
+            }, 1 )
+        },
+        mostraOpcoesTorre(peca, linha, coluna){
+            setTimeout(() => {
+                var movimentos = []
+
+                movimentos = this.percorreHorizontal('-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreHorizontal('+', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreVertical('+', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreVertical('-', movimentos, coluna, linha, peca.lado)
+                
+                this.getQuadrados(movimentos)
+                this.pecaSelecionada = peca
+            }, 1)
+        },
+        mostraOpcoesRei(peca, linha, coluna){
+            setTimeout(() => {
+                var movimentos = []
+
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        if(this.isValido(coluna+i, linha+j, peca.lado))
+                            movimentos.push({id: String(coluna+i)+String(linha+j)})
+                    }
+                    
+                }
+
+                this.getQuadrados(movimentos)
+                this.pecaSelecionada = peca
+            }, 1)
+        },
+        mostraOpcoesDama(peca, linha, coluna){
+            setTimeout(() => {
+                var movimentos = []
+
+                movimentos = this.percorreHorizontal('-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreHorizontal('+', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreVertical('+', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreVertical('-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('+', '-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('+', '+', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('-', '-', movimentos, coluna, linha, peca.lado)
+                movimentos = this.percorreDiagonal('-', '+', movimentos, coluna, linha, peca.lado)
+
+                this.getQuadrados(movimentos)
+                this.pecaSelecionada = peca
+            }, 1)
+        },
+        percorreDiagonal(sinal1, sinal2, movimentos, coluna, linha, lado){
+            sinal1 = this.getSinal(sinal1)
+            sinal2 = this.getSinal(sinal2)
+            for (let i = 1; true; i++) {
+                if(!this.isValido(coluna+(i*sinal1), linha+(i*sinal2), lado)) break
+
+                movimentos.push({id: String(coluna+(i*sinal1))+String(linha+(i*sinal2))})
+                
+                if (this.getQuadrado((coluna+(i*sinal1)), (linha+(i*sinal2))) 
+                && this.getQuadrado((coluna+(i*sinal1)), (linha+(i*sinal2))).quadrado.__vue__.pecaQuadrado.lado == this.getAdversario(lado)) break
+            }
+
+            return movimentos
+        },
+        percorreVertical(sinal, movimentos, coluna, linha, lado){
+            sinal = this.getSinal(sinal)
+
+            for (let i = 1; true; i++) {
+                if(!this.isValido(coluna, linha+(i*sinal), lado)) break
+                movimentos.push({id: String(coluna)+String(linha+(i*sinal))}) 
+                
+                if(this.getQuadrado(coluna, linha+(i*sinal)) 
+                && this.getQuadrado(coluna, linha+(i*sinal)).quadrado.__vue__.pecaQuadrado.lado == this.getAdversario(lado))
+                    break;
+            }
+
+            return movimentos
+        },
+        percorreHorizontal(sinal, movimentos, coluna, linha, lado){
+            sinal = this.getSinal(sinal)
+
+            for (let i = 1; true; i++) {
+                if(!this.isValido(coluna+(i*sinal), linha, lado)) break
+                movimentos.push({id: String(coluna+(i*sinal))+String(linha)}) 
+                
+                if(this.getQuadrado(coluna+(i*sinal), linha) 
+                && this.getQuadrado(coluna+(i*sinal), linha).quadrado.__vue__.pecaQuadrado.lado == this.getAdversario(lado))
+                    break;
+            }
+
+            return movimentos
+        },
+        getSinal(sinal){
+            if(sinal === '+'){
+                return 1
+            } else{
+                return -1
+            }
+        },
       getAdversario(lado) {
           if (lado === 'Branco'){
               return  'Preto'
