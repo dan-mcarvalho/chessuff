@@ -28,6 +28,7 @@
               </div>
               <Modal v-if="showModal" 
                     @close="showModal=false"
+                    :fecharModal="fecharModal"
                     />
           </div>
       </div>
@@ -325,6 +326,9 @@ export default {
       },
       isLadoAtual(lado){
           return this.ladoAtual === lado ? false : true
+      },
+      fecharModal(){
+          this.showModal = false
       },
     },
     directives: {

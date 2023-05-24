@@ -12,13 +12,15 @@
 
             <div class="modal-body">
               <slot name="body">
+                <br> <br>
                 <div  class="peca">
-                  <button v-on:click="umJogador()" >
+                  <button v-on:click="umJogador" >
                     Um jogador
                   </button>
                 </div>
+                <br>
                 <div  class="peca">
-                  <button v-on:click="doisJogadores()" >
+                  <button v-on:click="doisJogadores" >
                     Dois jogadores
                   </button>
                 </div>
@@ -31,9 +33,11 @@
 </template>
 
 <script>
+
 export default {
   name: "modal-menu",
   props: {
+    fecharModal: Function
   },
   data: () => {
       return {
@@ -41,9 +45,13 @@ export default {
       }
   },
   methods: {
-    getImage(peca) {
-            return require(`../assets/pecas/${peca+"Branco"}.png`) 
-        }
+    umJogador(){
+      //TODO: Chamar parte do programa que inicia o jogo com uma I.A
+      this.fecharModal()
+    },
+    doisJogadores(){
+      this.fecharModal()
+    }
   }
 }
 </script>
@@ -87,10 +95,6 @@ font-size: 1.8rem;
 
 .modal-body {
 margin: 2rem 0;
-}
-
-.modal-default-button {
-
 }
 
 .modal-enter {
