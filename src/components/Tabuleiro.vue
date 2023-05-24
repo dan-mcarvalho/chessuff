@@ -26,6 +26,9 @@
                       v-bind:key="coluna"
                   />
               </div>
+              <Modal v-if="showModal" 
+                    @close="showModal=false"
+                    />
           </div>
       </div>
   </div>
@@ -33,12 +36,13 @@
 <script>
 import Quadrado from './Quadrado.vue'
 import ClickOutside from 'vue-click-outside'
+import Modal from './Modal.vue'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Tabuleiro",
   components: {
-      Quadrado,
+      Quadrado, Modal
   },
   data: () => {
       return {
@@ -49,9 +53,10 @@ export default {
           movimentos: [],
           pecaSelecionada: {},
           ladoAtual: 'Branco',
-          linhaModal: '',
-          colunaModal: '',
-          ladoModal: '',
+          showModal: true,
+          linhaModal: 0,
+          colunaModal: 0,
+          ladoModal: 0,
           pecasMortasPretas: new Array(),
           movimentacaoDePecas: null,
       };
