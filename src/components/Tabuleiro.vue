@@ -49,6 +49,7 @@ export default {
           movimentos: [],
           pecaSelecionada: {},
           ladoAtual: 'Branco',
+          isComputador: true,
           linhaModal: '',
           colunaModal: '',
           ladoModal: '',
@@ -70,7 +71,7 @@ export default {
       mostraOpcoesTorre: this.mostraOpcoesTorre,
       mostraOpcoesBispo: this.mostraOpcoesBispo,
     }
-    console.log("funcoes", this.movimentacaoDePecas)
+    console.log("CADARADO", this.quadrados)
 
   },  
   methods: {

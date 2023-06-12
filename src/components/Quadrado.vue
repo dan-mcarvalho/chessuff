@@ -86,6 +86,9 @@ export default {
               this.ocupado = true
               this.mudarLado()
           }
+          if(isComputador) {
+            
+          }
       }
   },
   mounted() {
