@@ -58,6 +58,7 @@ export default {
           linhaModal: '',
           colunaModal: '',
           ladoModal: '',
+          showModal: true,
           pecasMortasPretas: new Array(),
           movimentacaoDePecas: null,
       };
