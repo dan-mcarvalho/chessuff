@@ -23,6 +23,7 @@ export default {
       isPecaSelecionada: Function,
       mudarLado: Function,
       movimentos: Array,
+      quadrados: Array,
       movimentacaoDePecas: Object,
       movimentarPecas: Function,
       pecaSelecionada: Object
@@ -87,7 +88,7 @@ export default {
               this.mudarLado()
           }
           if(isComputador) {
-            
+
           }
       }
   },

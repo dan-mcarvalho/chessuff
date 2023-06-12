@@ -15,13 +15,13 @@
                 <br> <br>
                 <div  class="peca">
                   <button v-on:click="umJogador" >
-                    Um jogador
+                    Jogar contra o computador
                   </button>
                 </div>
                 <br>
                 <div  class="peca">
                   <button v-on:click="doisJogadores" >
-                    Dois jogadores
+                    Jogar contra um amigo
                   </button>
                 </div>
               </slot>
@@ -37,7 +37,8 @@
 export default {
   name: "modal-menu",
   props: {
-    fecharModal: Function
+    fecharModal: Function,
+    setModoDeJogo: Function,
   },
   data: () => {
       return {
@@ -46,10 +47,11 @@ export default {
   },
   methods: {
     umJogador(){
-      //TODO: Chamar parte do programa que inicia o jogo com uma I.A
+      this.setModoDeJogo(true);
       this.fecharModal()
     },
     doisJogadores(){
+      this.setModoDeJogo(false);
       this.fecharModal()
     }
   }

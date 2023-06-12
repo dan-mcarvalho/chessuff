@@ -9,7 +9,9 @@
               <div v-for="linha in linhas" v-bind:key="linha" class="linha">
                   <Quadrado 
                       :movimentacaoDePecas ="movimentacaoDePecas"
-                      :movimentos="movimentos" 
+                      :movimentos="movimentos"
+                      :quadrados="quadrados"
+                      :isComputador="true"
                       :adicionaPeca="adicionaPeca" 
                       :adicionaQuadrado="adicionaQuadrado"
                       :removePecaAtual="removePecaAtual"
@@ -29,6 +31,7 @@
               <Modal v-if="showModal" 
                     @close="showModal=false"
                     :fecharModal="fecharModal"
+                    :setModoDeJogo = "setModoDeJogo"
                     />
           </div>
       </div>
@@ -54,7 +57,7 @@ export default {
           movimentos: [],
           pecaSelecionada: {},
           ladoAtual: 'Branco',
-          isComputador: true,
+          isComputador: false,
           linhaModal: '',
           colunaModal: '',
           ladoModal: '',
@@ -69,6 +72,7 @@ export default {
     },
   },
   mounted(){
+    console.log("quadrados", this.quadrados)
     this.movimentacaoDePecas = {
       mostraOpcoesPeao: this.mostraOpcoesPeao,
       mostraOpcoesCavalo:this.mostraOpcoesCavalo,
@@ -77,8 +81,6 @@ export default {
       mostraOpcoesTorre: this.mostraOpcoesTorre,
       mostraOpcoesBispo: this.mostraOpcoesBispo,
     }
-    console.log("CADARADO", this.quadrados)
-
   },  
   methods: {
       getQuadrado(coluna, linha){
@@ -86,6 +88,9 @@ export default {
           linha = String(linha)
           const id = coluna+linha
           return this.quadrados.get(id)
+      },
+      setModoDeJogo(mode){
+        this.isComputador = mode;
       },
       adicionaPeca(linha, coluna, peca){
           this.pecas.push({linha, coluna, peca})
