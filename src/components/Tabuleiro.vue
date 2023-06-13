@@ -10,6 +10,7 @@
                   <Quadrado 
                       :movimentacaoDePecas ="movimentacaoDePecas"
                       :movimentos="movimentos"
+                      :getMovimentosIa="getMovimentosIa"
                       :limparMovimentosIa="limparMovimentosIa"
                       :quadrados="quadrados"
                       :isComputador="isComputador"
@@ -100,6 +101,9 @@ export default {
       limparMovimentosIa(){
         this.movimentos = [];
       },
+      getMovimentosIa(){
+        return this.movimentos;
+      },
       adicionaPeca(linha, coluna, peca){
           this.pecas.push({linha, coluna, peca})
       },
@@ -143,6 +147,7 @@ export default {
               this.mostrarQuadradosDisponiveis(movimentos)
               this.pecaSelecionada = peca 
           }, 1)
+          return this.movimentos;
       },
       isValido(coluna, linha, lado){
             if(this.getQuadrado(coluna, linha) && this.getQuadrado(coluna, linha).quadrado.__vue__.pecaQuadrado.lado != lado)
@@ -185,6 +190,7 @@ export default {
                 this.getQuadrados(movimentos)
                 this.pecaSelecionada = peca
             }, 1)
+            return this.movimentos;
         },
         mostraOpcoesBispo(peca, linha, coluna) {
             setTimeout(() => {
@@ -198,6 +204,7 @@ export default {
                 this.getQuadrados(movimentos)
                 this.pecaSelecionada = peca
             }, 1 )
+          return this.movimentos;
         },
         mostraOpcoesTorre(peca, linha, coluna){
             setTimeout(() => {
@@ -211,6 +218,7 @@ export default {
                 this.getQuadrados(movimentos)
                 this.pecaSelecionada = peca
             }, 1)
+          return this.movimentos;
         },
         mostraOpcoesRei(peca, linha, coluna){
             setTimeout(() => {
@@ -227,11 +235,11 @@ export default {
                 this.getQuadrados(movimentos)
                 this.pecaSelecionada = peca
             }, 1)
+          return this.movimentos;
         },
         mostraOpcoesDama(peca, linha, coluna){
             setTimeout(() => {
                 var movimentos = []
-
                 movimentos = this.percorreHorizontal('-', movimentos, coluna, linha, peca.lado)
                 movimentos = this.percorreHorizontal('+', movimentos, coluna, linha, peca.lado)
                 movimentos = this.percorreVertical('+', movimentos, coluna, linha, peca.lado)
@@ -244,6 +252,7 @@ export default {
                 this.getQuadrados(movimentos)
                 this.pecaSelecionada = peca
             }, 1)
+          return this.movimentos;
         },
         percorreDiagonal(sinal1, sinal2, movimentos, coluna, linha, lado){
             sinal1 = this.getSinal(sinal1)
@@ -336,6 +345,7 @@ export default {
       },
       mudarLado(){
           this.ladoAtual = this.getAdversario(this.ladoAtual)
+          this.pecaSelecionada = {};
       },
       isLadoAtual(lado){
           return this.ladoAtual === lado ? false : true

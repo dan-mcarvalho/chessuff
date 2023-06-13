@@ -29,12 +29,13 @@ export default {
       quadrados: Map,
       movimentacaoDePecas: Object,
       movimentarPecas: Function,
+      getMovimentosIa: Function,
       pecaSelecionada: Object
   },
   data: () => {
       return {
           ocupado: false,
-          pecaQuadrado: {}
+          pecaQuadrado: {},
       }
   },
   methods:{
@@ -43,26 +44,20 @@ export default {
           classe+= this.movimentos.includes(this.id) ? ' selecionado' : ''
           return classe
       },
-      mostraOpcoes: function (tipo) {
+      mostraOpcoes: function (tipo, peca=this.pecaQuadrado, linha=this.linha, coluna=this.coluna) {
           switch(tipo) {
               case 'Peao':
-                  this.movimentacaoDePecas.mostraOpcoesPeao(this.pecaQuadrado, this.linha, this.coluna)
-                  break;
+                  return this.movimentacaoDePecas.mostraOpcoesPeao(peca, linha, coluna)
               case 'Cavalo':
-                  this.movimentacaoDePecas.mostraOpcoesCavalo(this.pecaQuadrado, this.linha, this.coluna)
-                  break;
+                  return this.movimentacaoDePecas.mostraOpcoesCavalo(peca, linha, coluna)
               case 'Rei':
-                  this.movimentacaoDePecas.mostraOpcoesRei(this.pecaQuadrado, this.linha, this.coluna)
-                  break;
+                  return this.movimentacaoDePecas.mostraOpcoesRei(peca, linha, coluna)
               case 'Dama':
-                  this.movimentacaoDePecas.mostraOpcoesDama(this.pecaQuadrado, this.linha, this.coluna)
-                  break;
+                  return this.movimentacaoDePecas.mostraOpcoesDama(peca, linha, coluna)
               case 'Bispo':
-                  this.movimentacaoDePecas.mostraOpcoesBispo(this.pecaQuadrado, this.linha, this.coluna)
-                  break;
+                  return this.movimentacaoDePecas.mostraOpcoesBispo(peca, linha, coluna)
               case 'Torre':
-              this.movimentacaoDePecas.mostraOpcoesTorre(this.pecaQuadrado, this.linha, this.coluna)
-              break;
+                  return this.movimentacaoDePecas.mostraOpcoesTorre(peca, linha, coluna)
           }
       },
       moverPeca(){
@@ -91,23 +86,35 @@ export default {
               this.mudarLado()
           }
           if(this.isComputador && this.getLadoAtual() === "Preto") {
+            const possiveisPecas = [];
             for (const value of this.quadrados.values()) {
                 if(value.quadrado.__vue__.pecaQuadrado.lado === "Preto") {
                     const pecaAtual = value.quadrado.__vue__.pecaQuadrado
-                    if(pecaAtual.linha === 2 && pecaAtual.coluna === 8) {
-                        this.movimentacaoDePecas.mostraOpcoesPeao(pecaAtual, pecaAtual.linha, pecaAtual.coluna)
-                        setTimeout(() => {
-                            const quadrado = this.quadrados.get(this.movimentos[0]).quadrado.__vue__.$refs.quadrado;
-                            quadrado.dispatchEvent(new Event('click'));
-                            this.limparMovimentosIa();
-                            }, 2000);
-                        console.log('movimentos', this.movimentos)
-                        console.log("this.aquuii", )
-                    }
+                    possiveisPecas.push(pecaAtual);
                 }      
             }
+              this.jogadaIA(possiveisPecas);
           }
-      }
+      },
+      jogadaIA(pecas){
+          let randomIndex = Math.floor(Math.random() * pecas.length);
+          let peca = pecas[randomIndex]
+          this.mostraOpcoes(peca.tipo, peca, peca.linha, peca.coluna)
+          let movimentos = this.movimentos;
+          setTimeout(() => {
+            let randomMovimentoIdx = Math.floor(Math.random() * movimentos.length);
+            if(movimentos.length > 0 && this.quadrados.get(this.movimentos[randomMovimentoIdx]) !== undefined) {
+              const quadrado = this.quadrados.get(this.movimentos[randomMovimentoIdx]).quadrado.__vue__.$refs.quadrado;
+              quadrado.dispatchEvent(new Event('click'));
+              this.limparMovimentosIa();
+              return;
+            } else {
+              this.jogadaIA(pecas)
+              this.limparMovimentosIa();
+              return;
+            }
+            }, 10);
+      },
   },
   mounted() {
       pecas.map(peca => {
@@ -160,7 +167,7 @@ export default {
 }
 
 .selecionado {
-  border: solid 2px red;
+  background-color: rgb(100, 100, 100);
   cursor: pointer;
 }
 
