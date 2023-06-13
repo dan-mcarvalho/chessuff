@@ -14,7 +14,10 @@ export default {
   props: {
       linha: Number,
       coluna: Number,
+      isComputador: Boolean,
       id: String,
+      limparMovimentosIa:Function,
+      getLadoAtual:Function,
       isLadoAtual: Function,
       adicionaPeca: Function,
       adicionaQuadrado: Function,
@@ -23,7 +26,7 @@ export default {
       isPecaSelecionada: Function,
       mudarLado: Function,
       movimentos: Array,
-      quadrados: Array,
+      quadrados: Map,
       movimentacaoDePecas: Object,
       movimentarPecas: Function,
       pecaSelecionada: Object
@@ -87,8 +90,22 @@ export default {
               this.ocupado = true
               this.mudarLado()
           }
-          if(isComputador) {
-
+          if(this.isComputador && this.getLadoAtual() === "Preto") {
+            for (const value of this.quadrados.values()) {
+                if(value.quadrado.__vue__.pecaQuadrado.lado === "Preto") {
+                    const pecaAtual = value.quadrado.__vue__.pecaQuadrado
+                    if(pecaAtual.linha === 2 && pecaAtual.coluna === 8) {
+                        this.movimentacaoDePecas.mostraOpcoesPeao(pecaAtual, pecaAtual.linha, pecaAtual.coluna)
+                        setTimeout(() => {
+                            const quadrado = this.quadrados.get(this.movimentos[0]).quadrado.__vue__.$refs.quadrado;
+                            quadrado.dispatchEvent(new Event('click'));
+                            this.limparMovimentosIa();
+                            }, 2000);
+                        console.log('movimentos', this.movimentos)
+                        console.log("this.aquuii", )
+                    }
+                }      
+            }
           }
       }
   },

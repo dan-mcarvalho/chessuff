@@ -2,7 +2,7 @@
   <div>
       <div class="container"> 
         <div class="header">
-          <h1 style="font-family: 'sans-serif'; font-size:50px; font-weight: bold; color: black;"> Chessuff</h1>
+          <h1 style="font-family: 'sans-serif'; font-size:50px; font-weight: bold; color: white;"> Chessuff</h1>
           <div ><img class="logo" :src="logoUff"></div>
         </div>
           <div class="tabuleiro" v-click-outside="limparQuadrados" v-on:click="limparQuadrados" >
@@ -10,8 +10,9 @@
                   <Quadrado 
                       :movimentacaoDePecas ="movimentacaoDePecas"
                       :movimentos="movimentos"
+                      :limparMovimentosIa="limparMovimentosIa"
                       :quadrados="quadrados"
-                      :isComputador="true"
+                      :isComputador="isComputador"
                       :adicionaPeca="adicionaPeca" 
                       :adicionaQuadrado="adicionaQuadrado"
                       :removePecaAtual="removePecaAtual"
@@ -21,6 +22,7 @@
                       :linha="linha"
                       :coluna="coluna"
                       :isLadoAtual="isLadoAtual"
+                      :getLadoAtual ="getLadoAtual"
                       :pecaSelecionada="pecaSelecionada"
                       :movimentarPecas="movimentarPecas"
                       :id="''+coluna+linha" 
@@ -64,6 +66,7 @@ export default {
           showModal: true,
           pecasMortasPretas: new Array(),
           movimentacaoDePecas: null,
+          propriedadesIA:null
       };
   },
   computed: {
@@ -72,7 +75,6 @@ export default {
     },
   },
   mounted(){
-    console.log("quadrados", this.quadrados)
     this.movimentacaoDePecas = {
       mostraOpcoesPeao: this.mostraOpcoesPeao,
       mostraOpcoesCavalo:this.mostraOpcoesCavalo,
@@ -91,6 +93,12 @@ export default {
       },
       setModoDeJogo(mode){
         this.isComputador = mode;
+      },
+      getLadoAtual(){
+        return this.ladoAtual;
+      },
+      limparMovimentosIa(){
+        this.movimentos = [];
       },
       adicionaPeca(linha, coluna, peca){
           this.pecas.push({linha, coluna, peca})
@@ -131,7 +139,6 @@ export default {
               
               if(this.capturaDisponivelPeao(coluna-(1*aux), linha-(1*aux), peca.lado))
                   movimentos.push({id: String(coluna-(1*aux))+String(linha-(1*aux))})
-              console.log('movimento', this.movimentos)
 
               this.mostrarQuadradosDisponiveis(movimentos)
               this.pecaSelecionada = peca 
@@ -345,7 +352,7 @@ export default {
 
 <style scoped>
 .tabuleiro {
-  margin-top: 5rem;
+  margin-top: 2rem;
   margin-left: 10rem;
   display: inline-block;
   border: 2px solid black;
