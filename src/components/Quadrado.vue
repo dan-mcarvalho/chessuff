@@ -153,7 +153,7 @@ export default {
   width: 10vh;
   display: inline-block;
   position: relative;
-  transition: all .3s;
+  transition: all .1s;
 }
 
 .preto{
@@ -172,7 +172,7 @@ export default {
 }
 
 .selecionado {
-  background-color: rgb(100, 100, 100);
+  border: solid 2px rgb(199, 0, 0);
   cursor: pointer;
 }
 
