@@ -35,9 +35,9 @@
 <script>
 
 export default {
-  name: "modal-menu",
+  name: "menu-menu",
   props: {
-    fecharModal: Function,
+    fecharMenu: Function,
     setModoDeJogo: Function,
   },
   data: () => {
@@ -48,11 +48,11 @@ export default {
   methods: {
     umJogador(){
       this.setModoDeJogo(true);
-      this.fecharModal()
+      this.fecharMenu()
     },
     doisJogadores(){
       this.setModoDeJogo(false);
-      this.fecharModal()
+      this.fecharMenu()
     }
   }
 }

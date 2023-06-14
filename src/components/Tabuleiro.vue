@@ -31,9 +31,9 @@
                       v-bind:key="coluna"
                   />
               </div>
-              <Modal v-if="showModal" 
-                    @close="showModal=false"
-                    :fecharModal="fecharModal"
+              <Menu v-if="showMenu" 
+                    @close="showMenu=false"
+                    :fecharMenu="fecharMenu"
                     :setModoDeJogo = "setModoDeJogo"
                     />
           </div>
@@ -43,13 +43,13 @@
 <script>
 import Quadrado from './Quadrado.vue'
 import ClickOutside from 'vue-click-outside'
-import Modal from './Modal.vue'
+import Menu from './Menu.vue'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Tabuleiro",
   components: {
-      Quadrado, Modal
+      Quadrado, Menu
   },
   data: () => {
       return {
@@ -61,10 +61,7 @@ export default {
           pecaSelecionada: {},
           ladoAtual: 'Branco',
           isComputador: false,
-          linhaModal: '',
-          colunaModal: '',
-          ladoModal: '',
-          showModal: true,
+          showMenu: true,
           pecasMortasPretas: new Array(),
           movimentacaoDePecas: null,
           propriedadesIA:null
@@ -350,8 +347,8 @@ export default {
       isLadoAtual(lado){
           return this.ladoAtual === lado ? false : true
       },
-      fecharModal(){
-          this.showModal = false
+      fecharMenu(){
+          this.showMenu = false
       },
     },
     directives: {
