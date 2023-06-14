@@ -25,6 +25,7 @@ export default {
       capturaPeca: Function,
       isPecaSelecionada: Function,
       mudarLado: Function,
+      openModal: Function,
       movimentos: Array,
       quadrados: Map,
       movimentacaoDePecas: Object,
@@ -83,6 +84,10 @@ export default {
                                    linha: this.linha,
                                    coluna: this.coluna}
               this.ocupado = true
+              if((this.pecaSelecionada.tipo === 'Peao') 
+                    && (this.pecaSelecionada.lado === 'Branco' && this.linha === 1 
+                    || this.pecaSelecionada.lado === 'Preto' && this.linha === 8))
+                    this.openModal(this.coluna, this.linha, this.pecaSelecionada.lado)
               this.mudarLado()
           }
           if(this.isComputador && this.getLadoAtual() === "Preto") {

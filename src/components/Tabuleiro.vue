@@ -18,6 +18,7 @@
                       :adicionaQuadrado="adicionaQuadrado"
                       :removePecaAtual="removePecaAtual"
                       :isPecaSelecionada="isPecaSelecionada"
+                      :openModal="openModal"
                       :capturaPeca="capturaPeca"
                       :mudarLado="mudarLado"
                       :linha="linha"
@@ -30,12 +31,18 @@
                       v-for="coluna in colunas" 
                       v-bind:key="coluna"
                   />
-              </div>
-              <Menu v-if="showMenu" 
-                    @close="showMenu=false"
+               </div>
+               <Menu v-if="showMenu" 
+                  @close="showMenu=false"
                     :fecharMenu="fecharMenu"
                     :setModoDeJogo = "setModoDeJogo"
                     />
+                <Modal v-if="showModal" 
+                    @close="showModal=false"
+                    :linha="linhaModal"
+                    :coluna="colunaModal"
+                    :lado="ladoModal"
+                    :evoluirPeca="evoluirPeca"/>
           </div>
       </div>
   </div>
@@ -43,13 +50,14 @@
 <script>
 import Quadrado from './Quadrado.vue'
 import ClickOutside from 'vue-click-outside'
+import Modal from './Modal.vue'
 import Menu from './Menu.vue'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Tabuleiro",
   components: {
-      Quadrado, Menu
+      Quadrado, Menu, Modal
   },
   data: () => {
       return {
@@ -62,6 +70,10 @@ export default {
           ladoAtual: 'Branco',
           isComputador: false,
           showMenu: true,
+          showModal: false,
+          linhaModal: '',
+          colunaModal: '',
+          ladoModal: '',
           pecasMortasPretas: new Array(),
           movimentacaoDePecas: null,
           propriedadesIA:null
@@ -350,6 +362,17 @@ export default {
       fecharMenu(){
           this.showMenu = false
       },
+      openModal(coluna, linha, lado){
+            this.showModal = true;
+            this.colunaModal = coluna;
+            this.linhaModal = linha;
+            this.ladoModal = lado
+        },
+        evoluirPeca(peca, coluna, linha){
+            this.showModal = false
+            this.getQuadrado(coluna, linha).quadrado.__vue__.pecaQuadrado.tipo = peca
+            this.getQuadrado(coluna, linha).quadrado.firstChild.__vue__.tipo = peca
+        },
     },
     directives: {
         ClickOutside
