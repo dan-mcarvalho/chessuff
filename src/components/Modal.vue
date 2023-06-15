@@ -6,7 +6,7 @@
 
               <div class="modal-header">
                 <slot name="header">
-                  Escolha uma peça?
+                  Escolha uma peça para promover o peão.
                 </slot>
               </div>
 
