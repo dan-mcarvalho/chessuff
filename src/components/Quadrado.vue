@@ -29,6 +29,7 @@ export default {
       movimentos: Array,
       quadrados: Map,
       movimentacaoDePecas: Object,
+      ataqueDePecas: Object,
       movimentarPecas: Function,
       getMovimentosIa: Function,
       pecaSelecionada: Object
@@ -61,6 +62,21 @@ export default {
                   return this.movimentacaoDePecas.mostraOpcoesTorre(peca, linha, coluna)
           }
       },
+      mostrarAtaques(peca=this.pecaQuadrado, linha=this.linha, coluna=this.coluna) {
+        const tipo = peca.tipo
+        switch(tipo) {
+              case 'Peao':
+                  return this.ataqueDePecas.ataquePeao(peca, linha, coluna)
+              case 'Cavalo':
+                  return this.ataqueDePecas.ataqueCavalo(peca, linha, coluna)
+              case 'Dama':
+                  return this.ataqueDePecas.ataqueDama(peca, linha, coluna)
+              case 'Bispo':
+                  return this.ataqueDePecas.ataqueBispo(peca, linha, coluna)
+              case 'Torre':
+                  return this.ataqueDePecas.ataqueTorre(peca, linha, coluna)
+          }
+      },
       moverPeca(){
           if(Object.entries(this.pecaSelecionada).length === 0 && this.pecaSelecionada.constructor === Object) return
           if(this.movimentos.includes(this.id)){
@@ -88,6 +104,8 @@ export default {
                     && (this.pecaSelecionada.lado === 'Branco' && this.linha === 1 
                     || this.pecaSelecionada.lado === 'Preto' && this.linha === 8))
                     this.openModal(this.coluna, this.linha, this.pecaSelecionada.lado)
+              if(this.pecaQuadrado.tipo !== "Rei")
+                this.mostrarAtaques(this.pecaQuadrado, this.linha, this.coluna)
               this.mudarLado()
           }
           if(this.isComputador && this.getLadoAtual() === "Preto") {
@@ -172,7 +190,7 @@ export default {
 }
 
 .selecionado {
-  border: solid 2px rgb(199, 0, 0);
+  opacity: 0.2;
   cursor: pointer;
 }
 

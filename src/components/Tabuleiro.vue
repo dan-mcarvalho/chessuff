@@ -27,6 +27,7 @@
                       :getLadoAtual ="getLadoAtual"
                       :pecaSelecionada="pecaSelecionada"
                       :movimentarPecas="movimentarPecas"
+                      :ataqueDePecas ="ataqueDePecas"
                       :id="''+coluna+linha" 
                       v-for="coluna in colunas" 
                       v-bind:key="coluna"
@@ -43,6 +44,7 @@
                     :coluna="colunaModal"
                     :lado="ladoModal"
                     :evoluirPeca="evoluirPeca"/>
+                <XequeMate :ladoAtual="this.ladoAtual"  v-if="isXequeMate"> </XequeMate>                  
           </div>
       </div>
   </div>
@@ -51,13 +53,14 @@
 import Quadrado from './Quadrado.vue'
 import ClickOutside from 'vue-click-outside'
 import Modal from './Modal.vue'
+import XequeMate from './XequeMate.vue'
 import Menu from './Menu.vue'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Tabuleiro",
   components: {
-      Quadrado, Menu, Modal
+      Quadrado, Menu, Modal, XequeMate
   },
   data: () => {
       return {
@@ -66,6 +69,12 @@ export default {
           pecas: [],
           quadrados: new Map(),
           movimentos: [],
+          isXeque:false,
+          isXequeMate: false,
+          ataqueDePecas:null,
+          posicaoReiEmXeque: null,
+          posicaoAtacanteRei:null,
+          areasDeAtaque: [],
           pecaSelecionada: {},
           ladoAtual: 'Branco',
           isComputador: false,
@@ -92,9 +101,161 @@ export default {
       mostraOpcoesDama: this.mostraOpcoesDama,     
       mostraOpcoesTorre: this.mostraOpcoesTorre,
       mostraOpcoesBispo: this.mostraOpcoesBispo,
+    },
+    this.ataqueDePecas = {
+      ataquePeao: this.ataquePeao,
+      ataqueCavalo:this.ataqueCavalo,
+      ataqueDama: this.ataqueDama,     
+      ataqueTorre: this.ataqueTorre,
+      ataqueBispo: this.ataqueBispo,
     }
   },  
   methods: {
+        verificarXeque(){
+          this.areasDeAtaque.forEach((e)=>{
+            const quadradoAtacado = this.quadrados.get(e.id);
+            const quadradoAtacadoProps = quadradoAtacado.quadrado.__vue__;
+            if(quadradoAtacadoProps.ocupado) {
+              const pecaAtual = quadradoAtacadoProps.pecaQuadrado;
+              if(pecaAtual.tipo === "Rei") {
+                this.isXeque = true;
+                this.posicaoReiEmXeque = pecaAtual;
+              } 
+            }
+          });
+        },
+        ataquePeao(peca, linha, coluna, apenasChecar = false, bloqueioPeao=false, suporte = false) {
+          if(bloqueioPeao) {
+            var aux = peca.lado === 'Branco' ?  1 : -1
+              const qntMovimentos = linha === 7 && peca.lado === 'Branco' || linha === 2 && peca.lado === 'Preto' ? 2 : 1
+              var movimentos = []
+
+              for (let index = 1; index <= qntMovimentos; index++) {
+                  var mov = index*aux
+                  if(this.getQuadrado(coluna, linha-mov).quadrado.__vue__.ocupado === true)
+                      break
+                  movimentos.push({id: ''+coluna+(linha-mov)})  
+              }
+
+            return movimentos;
+          }
+          var aux = peca.lado === 'Branco' ?  1 : -1
+          var ataques = []
+
+          if(this.getQuadrado(coluna+(1*aux), linha-(1*aux)))
+            ataques.push({id: String(coluna+(1*aux))+String(linha-(1*aux))}) 
+          if(this.getQuadrado(coluna-(1*aux), linha-(1*aux)))           
+            ataques.push({id: String(coluna-(1*aux))+String(linha-(1*aux))})
+          
+          if(apenasChecar) return ataques;
+
+          this.areasDeAtaque = ataques;
+          this.posicaoAtacanteRei = peca;
+          this.verificarXeque()
+          return ataques;
+          },
+        ataqueCavalo(peca,linha,coluna, apenasChecar = false, suporte = false) {
+          var ataques = []
+          let auxLado = peca.lado
+          if(suporte) auxLado = this.getAdversario(peca.lado);
+
+          if(this.isValido(coluna+1, linha-2, auxLado))
+            ataques.push({id: String(coluna+1)+String(linha-2)})
+          
+          if(this.isValido(coluna-1, linha-2, auxLado))
+              ataques.push({id: String(coluna-1)+String(linha-2)})
+
+          if(this.isValido(coluna+1, linha+2, auxLado))
+              ataques.push({id: String(coluna+1)+String(linha+2)})
+
+          if(this.isValido(coluna-1, linha+2, auxLado))    
+              ataques.push({id: String(coluna-1)+String(linha+2)})
+          
+          if(this.isValido(coluna-2, linha+1, auxLado))    
+              ataques.push({id: String(coluna-2)+String(linha+1)})
+
+          if(this.isValido(coluna-2, linha-1, auxLado))    
+              ataques.push({id: String(coluna-2)+String(linha-1)})
+
+          if(this.isValido(coluna+2, linha+1, auxLado))    
+              ataques.push({id: String(coluna+2)+String(linha+1)})
+
+          if(this.isValido(coluna+2, linha-1, auxLado))    
+              ataques.push({id: String(coluna+2)+String(linha-1)})
+
+          if(apenasChecar) return ataques;
+          
+          this.areasDeAtaque = ataques;
+          this.posicaoAtacanteRei = peca;
+          this.verificarXeque()
+          return ataques;
+        },
+
+        movimentosPossiveisRei(peca,linha,coluna, apenasChecar = false, suporte = false) {
+          var movimentos = []
+          for (let i = -1; i <= 1; i++) {
+              for (let j = -1; j <= 1; j++) {
+                  if(this.isValido(coluna+i, linha+j, peca.lado))
+                  movimentos.push({id: String(coluna+i)+String(linha+j)})
+              }
+          }
+          return movimentos;
+        },
+        ataqueDama(peca,linha,coluna, apenasChecar = false, suporte) {
+          var ataques = []
+          let auxLado = peca.lado
+          if(suporte) auxLado = this.getAdversario(peca.lado);
+          ataques = this.percorreHorizontal('-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreHorizontal('+', ataques, coluna, linha, auxLado)
+          ataques = this.percorreVertical('+', ataques, coluna, linha, auxLado)
+          ataques = this.percorreVertical('-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('+', '-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('+', '+', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('-', '-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('-', '+', ataques, coluna, linha, auxLado)
+
+          if(apenasChecar) return ataques;
+
+          this.areasDeAtaque = ataques;
+          this.posicaoAtacanteRei = peca;
+          this.verificarXeque()
+          return ataques;
+        },
+        ataqueBispo(peca,linha,coluna, apenasChecar= false, suporte = false) {
+          var ataques = []
+          let auxLado = peca.lado
+          if(suporte) auxLado = this.getAdversario(peca.lado);
+
+          ataques = this.percorreDiagonal('+', '-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('+', '+', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('-', '-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreDiagonal('-', '+', ataques, coluna, linha, auxLado)
+
+          if(apenasChecar) return ataques;
+
+          this.areasDeAtaque = ataques;
+          this.posicaoAtacanteRei = peca;
+          this.verificarXeque()
+          return ataques;
+        },
+        ataqueTorre(peca,linha,coluna, apenasChecar= false, suporte = false) {
+          var ataques = []
+          let auxLado = peca.lado
+          if(suporte) auxLado = this.getAdversario(peca.lado);
+
+          ataques = this.percorreHorizontal('-', ataques, coluna, linha, auxLado)
+          ataques = this.percorreHorizontal('+', ataques, coluna, linha, auxLado)
+          ataques = this.percorreVertical('+', ataques, coluna, linha, auxLado)
+          ataques = this.percorreVertical('-', ataques, coluna, linha, auxLado)
+          
+          if(apenasChecar) return ataques;
+
+          this.areasDeAtaque = ataques;
+          this.posicaoAtacanteRei = peca;
+          this.verificarXeque()
+          return ataques;
+        },
+
       getQuadrado(coluna, linha){
           coluna = String(coluna)
           linha = String(linha)
@@ -232,13 +393,11 @@ export default {
         mostraOpcoesRei(peca, linha, coluna){
             setTimeout(() => {
                 var movimentos = []
-
                 for (let i = -1; i <= 1; i++) {
                     for (let j = -1; j <= 1; j++) {
                         if(this.isValido(coluna+i, linha+j, peca.lado))
                             movimentos.push({id: String(coluna+i)+String(linha+j)})
                     }
-                    
                 }
 
                 this.getQuadrados(movimentos)
@@ -353,8 +512,213 @@ export default {
           return ((this.pecaSelecionada.hasOwnProperty('lado')) && lado != this.pecaSelecionada.lado)
       },
       mudarLado(){
+          if(this.isXeque) {
+            this.verificarFimDeJogo();
+          }
           this.ladoAtual = this.getAdversario(this.ladoAtual)
           this.pecaSelecionada = {};
+      },
+      verificarFimDeJogo(){
+        const solucoesDeXeque = [];
+        solucoesDeXeque.push(
+          this.reiPodeSeMover(),
+          this.capturarAtacanteDoRei(),
+          this.pecaCobreRei(),
+        )
+        const isXequeMate = solucoesDeXeque.every((e)=> e === false)
+        if(isXequeMate) {
+          this.isXequeMate = true;
+        }
+      },
+      reiPodeSeMover() {
+        const rei = this.posicaoReiEmXeque;
+        const quadradoAtacanteRei = String(this.posicaoAtacanteRei.coluna) + this.posicaoAtacanteRei.linha
+        const atacanteDefendido = this.verificarAtacanteDefendido();
+
+        let areasDeAtaque = this.areasDeAtaque.map((e) => e.id)
+        let movimentos = this.movimentosPossiveisRei(rei, rei.linha, rei.coluna)
+        const movimentosPossiveis = movimentos.filter((e)=>  {
+          if(e.id === quadradoAtacanteRei && atacanteDefendido) return false
+          if(!areasDeAtaque.includes(e.id))
+            return true
+        });
+        if(movimentosPossiveis.length > 0) return true;
+        return false;
+      },
+      verificarAtacanteDefendido() {
+        const possiveisPecas = [];
+        let atacanteDefendido = false;
+        const quadradoAtacanteRei = String(this.posicaoAtacanteRei.coluna) + this.posicaoAtacanteRei.linha
+        for (const value of this.quadrados.values()) {
+            if(value.quadrado.__vue__.pecaQuadrado.lado === this.ladoAtual) {
+                const pecaAtual = value.quadrado.__vue__.pecaQuadrado
+                possiveisPecas.push(pecaAtual);
+            }      
+        }
+        for(let i = 0; i < possiveisPecas.length; i++) {
+          const peca = possiveisPecas[i];
+          if(peca.tipo !== "Rei") {
+            const areasDefendidas = this.mostrarAtaques(peca, false, true).map((e)=>e.id);
+            if(areasDefendidas.includes(quadradoAtacanteRei)) {
+              atacanteDefendido = true;
+              break;
+            }
+          } else if (peca.tipo === "Rei"){
+            const areasDefendidas = this.movimentosPossiveisRei(peca, peca.linha, peca.coluna)
+            if(areasDefendidas.includes(quadradoAtacanteRei)) {
+              atacanteDefendido = true;
+              break;
+            }
+          }
+        }
+        return atacanteDefendido;
+      },
+      capturarAtacanteDoRei(){
+        const possiveisPecas = [];
+        let existeCapturaPossivel = false;
+        const quadradoAtacanteRei = String(this.posicaoAtacanteRei.coluna) + this.posicaoAtacanteRei.linha
+            for (const value of this.quadrados.values()) {
+                if(value.quadrado.__vue__.pecaQuadrado.lado === this.getAdversario(this.ladoAtual)) {
+                    const pecaAtual = value.quadrado.__vue__.pecaQuadrado
+                    possiveisPecas.push(pecaAtual);
+                }      
+            }
+        for(let i = 0; i < possiveisPecas.length; i++) {
+          const peca = possiveisPecas[i];
+          if(peca.tipo !== "Rei") {
+            const possiveisCapturas = this.mostrarAtaques(peca).map((e)=>e.id);
+            if(possiveisCapturas.includes(quadradoAtacanteRei)) {
+              existeCapturaPossivel = true;
+              break;
+            }
+          }
+        }
+        return existeCapturaPossivel;
+      },
+      pecaCobreRei() {
+        let caminhoDoAtaque;
+        let pecaPodeCobrirRei = false;
+        const pecaAtacante = this.posicaoAtacanteRei;
+        const rei = this.posicaoReiEmXeque;
+
+        if(pecaAtacante.tipo === "Cavalo" || pecaAtacante.tipo === "Peao"){
+          return false;
+        }
+
+        if (pecaAtacante.tipo === "Torre") {
+          caminhoDoAtaque = this.caminhoAtaqueTorre();
+        } 
+
+        if (pecaAtacante.tipo === "Bispo") {
+          caminhoDoAtaque = this.caminhoAtaqueBispo();
+        }
+
+        if (pecaAtacante.tipo === "Dama") {
+          if(rei.linha === pecaAtacante.linha || rei.coluna === pecaAtacante.coluna) 
+            caminhoDoAtaque = this.caminhoAtaqueTorre();
+          else caminhoDoAtaque = this.caminhoAtaqueBispo();
+        }
+
+        for (const value of this.quadrados.values()) {
+                if(value.quadrado.__vue__.pecaQuadrado.tipo !== "Rei" && value.quadrado.__vue__.pecaQuadrado.lado === this.getAdversario(this.ladoAtual)) {
+                    let casasDeatuacao;
+                    const pecaAtual = value.quadrado.__vue__.pecaQuadrado
+                    if(pecaAtual.tipo === "Peao") casasDeatuacao = this.mostrarAtaques(pecaAtual, true);
+                    else casasDeatuacao = this.mostrarAtaques(pecaAtual);
+                    const filterCasasDeatuacao = casasDeatuacao.map(e => e.id)
+                    filterCasasDeatuacao.forEach((e)=> {
+                      if(caminhoDoAtaque.includes(e)) {
+                        pecaPodeCobrirRei = true;
+                      }
+                    })
+                    if(pecaPodeCobrirRei) break;
+                }      
+        }
+        return pecaPodeCobrirRei;
+      },
+      caminhoAtaqueTorre() {
+        const caminhoDoAtaque = [];
+        const pecaAtacante = this.posicaoAtacanteRei;
+        const rei = this.posicaoReiEmXeque;
+
+        if(pecaAtacante.linha === rei.linha) {
+            this.areasDeAtaque.forEach((e)=> {
+                const coluna = parseInt(e.id.charAt(0))
+                const linha = parseInt(e.id.charAt(1))
+                const condition = rei.coluna > pecaAtacante.coluna? coluna > pecaAtacante.coluna :  coluna < pecaAtacante.coluna
+                if(linha === pecaAtacante.linha && condition)
+                  caminhoDoAtaque.push(e.id);
+              });
+          } else {
+              this.areasDeAtaque.forEach((e)=> {
+                const coluna = parseInt(e.id.charAt(0))
+                const linha = parseInt(e.id.charAt(1))
+                const condition = rei.linha < pecaAtacante.linha? linha < pecaAtacante.linha :  linha > pecaAtacante.linha
+                if(coluna === pecaAtacante.coluna && condition)
+                  caminhoDoAtaque.push(e.id);
+              });
+          }
+          return caminhoDoAtaque;
+      },
+      caminhoAtaqueBispo(){
+        const caminhoDoAtaque = [];
+        const pecaAtacante = this.posicaoAtacanteRei;
+        const rei = this.posicaoReiEmXeque;
+
+        if(rei.linha < pecaAtacante.linha && rei.coluna < pecaAtacante.coluna) {
+            this.areasDeAtaque.forEach((e)=> {
+                const coluna = parseInt(e.id.charAt(0))
+                const linha = parseInt(e.id.charAt(1))
+                if(coluna < pecaAtacante.coluna && linha < pecaAtacante.linha) {
+                  caminhoDoAtaque.push(e.id);
+                }
+            });
+          }
+          if(rei.linha < pecaAtacante.linha && rei.coluna > pecaAtacante.coluna) {
+            this.areasDeAtaque.forEach((e)=> {
+                const coluna = parseInt(e.id.charAt(0))
+                const linha = parseInt(e.id.charAt(1))
+                if(linha < pecaAtacante.linha && coluna > pecaAtacante.coluna) {
+                  caminhoDoAtaque.push(e.id);
+                }
+            });
+          }
+          if(rei.linha > pecaAtacante.linha && rei.coluna > pecaAtacante.coluna) {
+            this.areasDeAtaque.forEach((e)=> {
+                const coluna = parseInt(e.id.charAt(0))
+                const linha = parseInt(e.id.charAt(1))
+                if(coluna > pecaAtacante.coluna && linha > pecaAtacante.linha) {
+                  caminhoDoAtaque.push(e.id);
+                }
+            });
+          }
+          if(rei.linha > pecaAtacante.linha && rei.coluna < pecaAtacante.coluna) {
+            this.areasDeAtaque.forEach((e)=> {
+                const coluna = parseInt(e.id.charAt(0))
+                const linha = parseInt(e.id.charAt(1))
+                if(linha > pecaAtacante.linha && coluna < pecaAtacante.coluna) {
+                  caminhoDoAtaque.push(e.id);
+                }
+            });
+          }
+          return caminhoDoAtaque;
+      },
+      mostrarAtaques(peca, bloqueioPeao, suporte = false) {
+        const tipo = peca.tipo;
+        const linha = peca.linha;
+        const coluna = peca.coluna;
+        switch(tipo) {
+              case 'Peao':
+                  return this.ataqueDePecas.ataquePeao(peca, linha, coluna, true, bloqueioPeao, suporte)
+              case 'Cavalo':
+                  return this.ataqueDePecas.ataqueCavalo(peca, linha, coluna, true, suporte)
+              case 'Dama':
+                  return this.ataqueDePecas.ataqueDama(peca, linha, coluna, true, suporte)
+              case 'Bispo':
+                  return this.ataqueDePecas.ataqueBispo(peca, linha, coluna, true, suporte)
+              case 'Torre':
+                  return this.ataqueDePecas.ataqueTorre(peca, linha, coluna, true, suporte)
+          }
       },
       isLadoAtual(lado){
           return this.ladoAtual === lado ? false : true
